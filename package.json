@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.0.0",
+    "node-schedule": "^2.0.0"
+  },
+  "type": "module",
+  "name": "wantai",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT"
+}
