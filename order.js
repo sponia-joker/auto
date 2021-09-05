@@ -53,7 +53,9 @@ export async function AddLotteryOrders({ params = {} }) {
   const game_cycle_id = lotteryCycle.lottery_cycle_now.now_cycle_id;
   const now_cycle_value = lotteryCycle.lottery_cycle_now.now_cycle_value; // 期号
   let response = {};
+
   if (now_cycle_value === params.order.game_cycle_value) {
+    // 当前期号和监听用户投注期号相同
     try {
       response = await fetch(`${config.api}/APIV2/GraphQL?l=zh-cn&pf=web`, {
         headers: {
@@ -110,13 +112,13 @@ export async function AddLotteryOrders({ params = {} }) {
         data,
       };
     }
-  }else{
+  } else {
     return {
-      hasError:true,
-      data:{
-        message:"期号不一致，已经错过投注时间"
-      }
-    }
+      hasError: true,
+      data: {
+        message: "期号不一致，已经错过投注时间",
+      },
+    };
   }
 }
 /**
