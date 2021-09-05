@@ -1,3 +1,6 @@
+import chalk from "chalk";
+import fetch from "node-fetch";
+
 export function convertNumberInDingWeiDan(array) {
   let str = "[";
   let sub_str = "[";
@@ -32,4 +35,13 @@ export function convertNumberInDingWeiDan(array) {
   str = str + "]";
 
   return str;
+}
+
+export function CallThePolice(call) {
+  if(call){
+    console.log(chalk.red('===============报警成功==============='))
+    // fetch('https://fwalert.com/93a4e087-86b1-429c-8a4d-242e04f0f779').then(value=>{
+      
+    // })
+  }
 }

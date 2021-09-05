@@ -5,7 +5,7 @@ export const token =
 
 export const api = "https://666.yshi208.com";
 
-export const interval = 2; //默认监听时间间隔为2秒
+export const interval = 1; //默认监听时间间隔为2秒
 
 export default {
   username,
