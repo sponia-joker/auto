@@ -25,7 +25,7 @@ export function convertNumberInDingWeiDan(array) {
       }
 
       str = str + sub_str;
-      // sub_str = "[";
+      sub_str = "[";
     }
   }
 

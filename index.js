@@ -1,17 +1,33 @@
+import _ from "lodash";
 import fetch from "node-fetch";
 import schedule from "node-schedule";
-import _ from "lodash";
+import chalk from "chalk";
+import config from "./config.js";
+import st from "silly-datetime";
 import { AddLotteryOrders } from "./order.js";
 import { convertNumberInDingWeiDan } from "./util.js";
-import config from "./config.js";
 
 /**
- * 获取到投注列表
+ * 全局变量，保存已经投注的订单id
+ */
+
+const hasOrder = {};
+
+// 监听次数索引
+
+let index = 1;
+/**
+ * 获取指定用户的投注记录
  * @returns
  *
  */
 
 async function getOrderList() {
+  const start_time = st.format(new Date(), "YYYY-MM-DD 03:00:00");
+  const end_time = st.format(
+    new Date(new Date().setDate(new Date().getDate() + 1)),
+    "YYYY-MM-DD 03:00:00"
+  );
   const response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
     headers: {
       accept: "application/json, text/plain, */*",
@@ -32,8 +48,8 @@ async function getOrderList() {
       variables: {
         input: {
           order_status_type: "All",
-          start_time: "2021-09-05 03:00:00",
-          end_time: "2021-09-06 03:00:00",
+          start_time,
+          end_time,
           page: 1,
           page_row: 1,
           identity_range: "Team",
@@ -96,35 +112,58 @@ async function getOrderDetail(id) {
   return result;
 }
 
-const orderList = await getOrderList();
+// 定义规则
+let rule = new schedule.RecurrenceRule();
+rule.second = [
+  0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
+  42, 44, 46, 48, 50, 52, 54, 56, 58,
+]; // 每隔 2 秒执行一次
 
-/**
- * order:
- * bet_balance_display: "16"
-bet_info: "01256789, , , , "
-bet_multiple: 1
-can_cancel: false
-can_one_more: true
-create_time: "2021-09-04 18:57:44"
-game_cycle_value: "202109041138"
-game_type_name: "定位胆"
-game_value: "奇趣腾讯分分彩"
-id: "NFJWDMWKIQEL"
-order_status: "OrderFinishWin" "OrderWaitOpen"  "OrderFinishNotWin" 订单状态
-result_balance_change_reason: ""
-result_balance_display: "19.660" //有余额说明是中奖
-user_account: "dashabi999"
- */
-for (const order of orderList) {
-  if (order.order_status === "OrderFinishWin") {
-    let { bet_info, game_type_name } = order;
-    if (game_type_name === "定位胆") {
-      const array = bet_info.replace(/\s+/g, "").split(","); //去掉下注信息中的空格,转换成数组
-      AddLotteryOrders({
-        params: {
-          bet_info: convertNumberInDingWeiDan(array),
-        },
-      });
+// 启动任务
+let job = schedule.scheduleJob(rule, () => {
+  console.log(`正在第${index}次监听下级用户【${config.username}】是否正在投注`);
+  start();
+  index++;
+});
+
+async function start() {
+  const orderList = await getOrderList();
+  /**
+   * order:
+   * bet_balance_display: "16"
+  bet_info: "01256789, , , , "
+  bet_multiple: 1
+  can_cancel: false
+  can_one_more: true
+  create_time: "2021-09-04 18:57:44"
+  game_cycle_value: "202109041138"
+  game_type_name: "定位胆"
+  game_value: "奇趣腾讯分分彩"
+  id: "NFJWDMWKIQEL"
+  order_status: "OrderFinishWin" "OrderWaitOpen"  "OrderFinishNotWin" 订单状态
+  result_balance_change_reason: ""
+  result_balance_display: "19.660" //有余额说明是中奖
+  user_account: "dashabi999"
+   */
+  for (const order of orderList) {
+    if (order.order_status === "OrderWaitOpen") {
+      let { bet_info, game_type_name, id } = order;
+      if (!hasOrder[id] && game_type_name === "定位胆") {
+        const array = bet_info.replace(/\s+/g, "").split(","); //去掉下注信息中的空格,转换成数组
+        console.log(chalk.blue("============正在投注================"));
+        const { hasError, data } = await AddLotteryOrders({
+          params: {
+            bet_info: convertNumberInDingWeiDan(array),
+            order,
+          },
+        });
+        if (!hasError) {
+          // 没有异常，标注该订单已经投注
+          hasOrder[id] = true;
+          console.log(chalk.green("============投注成功================"));
+        }
+        console.log("投注相关信息", data, hasError, hasOrder);
+      }
     }
   }
 }

@@ -1,5 +1,6 @@
-import fetch from "node-fetch";
 import _ from "lodash";
+import chalk from "chalk";
+import fetch from "node-fetch";
 import config from "./config.js";
 
 /**
@@ -21,8 +22,7 @@ async function GetLotteryCycle() {
     headers: {
       accept: "application/json, text/plain, */*",
       "accept-language": "zh-CN,zh;q=0.9",
-      authorization:
-        "YQT-IySCbxG6AMOfWAKvhOGVjnoJtRSSeZIjEzSmtrA=.eyJ1IjoyNjUxMDAsImEiOjU0NDI0MDMsInQiOiJiZGNmNGUyNTcwOTM3NzFjIiwiayI6MX0=",
+      authorization: config.token,
       "content-type": "application/json",
       "sec-ch-ua":
         '"Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"',
@@ -42,68 +42,82 @@ async function GetLotteryCycle() {
   return data.data.LotteryGame;
 }
 
-
 /**
  * 进行投注
- * @param {*} param0 
- * @returns 
+ * @param {*} param0
+ * @returns
  */
 export async function AddLotteryOrders({ params = {} }) {
+  console.log(chalk.blue("投注订单的参数", JSON.stringify(params)));
   const lotteryCycle = await GetLotteryCycle();
   const game_cycle_id = lotteryCycle.lottery_cycle_now.now_cycle_id;
+  const now_cycle_value = lotteryCycle.lottery_cycle_now.now_cycle_value; // 期号
   let response = {};
-  try {
-    response = await fetch(`${config.api}/APIV2/GraphQL?l=zh-cn&pf=web`, {
-      headers: {
-        accept: "application/json, text/plain, */*",
-        "accept-language": "zh-CN,zh;q=0.9",
-        authorization:
-          "YQT-IySCbxG6AMOfWAKvhOGVjnoJtRSSeZIjEzSmtrA=.eyJ1IjoyNjUxMDAsImEiOjU0NDI0MDMsInQiOiJiZGNmNGUyNTcwOTM3NzFjIiwiayI6MX0=",
-        "content-type": "application/json",
-        "sec-ch-ua":
-          '"Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"macOS"',
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin",
-      },
-      referrer: `${config.api}/lottery/190`,
-      referrerPolicy: "strict-origin-when-cross-origin",
-      body: JSON.stringify({
-        operationName: "AddLotteryOrders",
-        variables: {
-          input: [
-            {
-              game_id: 190,
-              game_type_id: 65,
-              game_cycle_id: game_cycle_id,
-              bet_info: params.bet_info,
-              bet_mode: "TwoYuan",
-              bet_multiple: 1,
-              bet_percent_type: "AdjustPercentType",
-              bet_percent: 0,
-            },
-          ],
+  if (now_cycle_value === params.order.game_cycle_value) {
+    try {
+      response = await fetch(`${config.api}/APIV2/GraphQL?l=zh-cn&pf=web`, {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          "accept-language": "zh-CN,zh;q=0.9",
+          authorization: config.token,
+          "content-type": "application/json",
+          "sec-ch-ua":
+            '"Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"',
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": '"macOS"',
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
         },
-        query:
-          "mutation AddLotteryOrders($input: [AddLotteryOrderInputObj]!) {\n  AddLotteryOrders(orders: $input) {\n    message\n    order_ids\n    __typename\n  }\n}\n",
-      }),
-      method: "POST",
-      mode: "cors",
-    });
-  } catch (error) {
-    console.log(error);
-  }
-  const data = await response.json();
-  const errors = _.get(data,"errors");
-  if(errors){
-    console.log(_.get(data,'errors[0].message'))
+        referrer: `${config.api}/lottery/190`,
+        referrerPolicy: "strict-origin-when-cross-origin",
+        body: JSON.stringify({
+          operationName: "AddLotteryOrders",
+          variables: {
+            input: [
+              {
+                game_id: 190,
+                game_type_id: 65,
+                game_cycle_id: game_cycle_id,
+                bet_info: params.bet_info,
+                bet_mode: "TwoYuan",
+                bet_multiple: 1,
+                bet_percent_type: "AdjustPercentType",
+                bet_percent: 0,
+              },
+            ],
+          },
+          query:
+            "mutation AddLotteryOrders($input: [AddLotteryOrderInputObj]!) {\n  AddLotteryOrders(orders: $input) {\n    message\n    order_ids\n    __typename\n  }\n}\n",
+        }),
+        method: "POST",
+        mode: "cors",
+      });
+    } catch (error) {
+      console.log(chalk.red(error));
+    }
+    const data = await response.json();
+    const errors = _.get(data, "errors");
+    if (errors) {
+      return {
+        hasError: true,
+        data: errors,
+      };
+    } else {
+      // console.log(_.get(data, "data.AddLotteryOrders.message"));
+      return {
+        hasError: false,
+        data,
+      };
+    }
   }else{
-    console.log(_.get(data,'data.AddLotteryOrders.message'))
+    return {
+      hasError:true,
+      data:{
+        message:"期号不一致，已经错过投注时间"
+      }
+    }
   }
-  
-  return data;
 }
 /**
  * {"data":{"AddLotteryOrders":{"message":"\u6295\u6ce8\u6210\u529f!","order_ids":["QDHUBLLCIPXO"],"__typename":"AddLotteryOrdersResult"}}}

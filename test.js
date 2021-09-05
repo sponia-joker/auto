@@ -1,5 +1,5 @@
-const str ='{"operationName":"getPersonalLotteryGameRecord","variables":{"input":{"order_status_type":"All","start_time":"2021-09-04 03:00:00","end_time":"2021-09-05 03:00:00","page":1,"page_row":10,"identity_range":"Team","game_id":null,"order_type":"All","bet_percent_type":"All"}},"query":"query getPersonalLotteryGameRecord($input: PersonalLotteryGameRecordInputObj) {\\n  User {\\n    id\\n    personal_lottery_game_record_page(input: $input) {\\n      record {\\n        id\\n        user_account\\n        game_cycle_value\\n        bet_info\\n        game_value\\n        game_type_name\\n        bet_balance_display\\n        result_balance_display\\n        create_time\\n        bet_multiple\\n        order_status\\n        can_cancel\\n        can_one_more\\n        result_balance_change_reason\\n        __typename\\n      }\\n      page_data {\\n        current\\n        pages\\n        total\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n  Language {\\n    order_status {\\n      k\\n      v\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n"}'
 
-
-
-console.log(JSON.parse(str))
+import st from "silly-datetime";
+ const now = st.format(new Date(), 'YYYY-MM-DD 03:00:00') 
+ const tomorrow = st.format(new Date(new Date().setDate(new Date().getDate() + 1)), 'YYYY-MM-DD 03:00:00')
+ console.log(now,tomorrow)
