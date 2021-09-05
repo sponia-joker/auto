@@ -78,8 +78,8 @@ export async function AddLotteryOrders({ params = {} }) {
           variables: {
             input: [
               {
-                game_id: 190,
-                game_type_id: 65,
+                game_id: 190,// 奇趣分分彩
+                game_type_id: 65,// 定位胆  113：中三组六复式
                 game_cycle_id: game_cycle_id,
                 bet_info: params.bet_info,
                 bet_mode: "TwoYuan",
@@ -115,8 +115,9 @@ export async function AddLotteryOrders({ params = {} }) {
   } else {
     return {
       hasError: true,
+      expired:true,
       data: {
-        message: "期号不一致，已经错过投注时间",
+        message:`期号不一致，已经错过投注时间${now_cycle_value}-${params.order.game_cycle_value}`,
       },
     };
   }

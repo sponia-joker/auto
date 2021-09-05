@@ -28,45 +28,54 @@ async function getOrderList() {
     new Date(new Date().setDate(new Date().getDate() + 1)),
     "YYYY-MM-DD 03:00:00"
   );
-  const response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
-    headers: {
-      accept: "application/json, text/plain, */*",
-      "accept-language": "en-US,en;q=0.9",
-      authorization: config.token,
-      "content-type": "application/json",
-      "sec-ch-ua":
-        '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "same-origin",
-    },
-    referrer: `${config.api}/report/lotteryOrder`,
-    referrerPolicy: "strict-origin-when-cross-origin",
-    body: JSON.stringify({
-      operationName: "getPersonalLotteryGameRecord",
-      variables: {
-        input: {
-          order_status_type: "All",
-          start_time,
-          end_time,
-          page: 1,
-          page_row: 1,
-          identity_range: "Team",
-          user_account: config.username, // 到时候自定义指定下级用户名
-          game_id: null,
-          order_type: "All",
-          bet_percent_type: "All",
-        },
+  let response = {};
+  try {
+    response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
+      headers: {
+        accept: "application/json, text/plain, */*",
+        "accept-language": "en-US,en;q=0.9",
+        authorization: config.token,
+        "content-type": "application/json",
+        "sec-ch-ua":
+          '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
       },
-      query:
-        "query getPersonalLotteryGameRecord($input: PersonalLotteryGameRecordInputObj) {\n  User {\n    id\n    personal_lottery_game_record_page(input: $input) {\n      record {\n        id\n        user_account\n        game_cycle_value\n        bet_info\n        game_value\n        game_type_name\n        bet_balance_display\n        result_balance_display\n        create_time\n        bet_multiple\n        order_status\n        can_cancel\n        can_one_more\n        result_balance_change_reason\n        __typename\n      }\n      page_data {\n        current\n        pages\n        total\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n  Language {\n    order_status {\n      k\n      v\n      __typename\n    }\n    __typename\n  }\n}\n",
-    }),
-    method: "POST",
-    mode: "cors",
-  });
-  const data = await response.json();
-  return _.get(data, "data.User.personal_lottery_game_record_page.record", []);
+      referrer: `${config.api}/report/lotteryOrder`,
+      referrerPolicy: "strict-origin-when-cross-origin",
+      body: JSON.stringify({
+        operationName: "getPersonalLotteryGameRecord",
+        variables: {
+          input: {
+            order_status_type: "OrderWaitChangeBalance",
+            start_time,
+            end_time,
+            page: 1,
+            page_row: 1,
+            identity_range: "Team",
+            user_account: config.username, // 到时候自定义指定下级用户名
+            game_id: null,
+            order_type: "All",
+            bet_percent_type: "All",
+          },
+        },
+        query:
+          "query getPersonalLotteryGameRecord($input: PersonalLotteryGameRecordInputObj) {\n  User {\n    id\n    personal_lottery_game_record_page(input: $input) {\n      record {\n        id\n        user_account\n        game_cycle_value\n        bet_info\n        game_value\n        game_type_name\n        bet_balance_display\n        result_balance_display\n        create_time\n        bet_multiple\n        order_status\n        can_cancel\n        can_one_more\n        result_balance_change_reason\n        __typename\n      }\n      page_data {\n        current\n        pages\n        total\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n  Language {\n    order_status {\n      k\n      v\n      __typename\n    }\n    __typename\n  }\n}\n",
+      }),
+      method: "POST",
+      mode: "cors",
+    });
+    const data = await response.json();
+    return _.get(
+      data,
+      "data.User.personal_lottery_game_record_page.record",
+      []
+    );
+  } catch (error) {
+    console.log(error);
+  }
 }
 /**
  *
@@ -82,48 +91,65 @@ async function getOrderList() {
  * id 投注记录对应的id
  */
 async function getOrderDetail(id) {
-  const response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
-    headers: {
-      accept: "application/json, text/plain, */*",
-      "accept-language": "en-US,en;q=0.9",
-      authorization: config.token,
-      "content-type": "application/json",
-      "sec-ch-ua":
-        '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "same-origin",
-    },
-    referrer: `${config.api}/report/lotteryOrder`,
-    referrerPolicy: "strict-origin-when-cross-origin",
-    body: JSON.stringify({
-      operationName: "getLotteryOrderDetail",
-      variables: {
-        id: id,
+  try {
+    const response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
+      headers: {
+        accept: "application/json, text/plain, */*",
+        "accept-language": "en-US,en;q=0.9",
+        authorization: config.token,
+        "content-type": "application/json",
+        "sec-ch-ua":
+          '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
       },
-      query:
-        "query getLotteryOrderDetail($id: String!) {\n  User {\n    id\n    lottery_order_detail(id: $id) {\n      user_account\n      order_id\n      create_time\n      game_id_v2\n      game_type_name\n      game_cycle_value\n      bet_count\n      bet_multiple\n      bet_balance\n      result_balance\n      order_status\n      order_result\n      bet_info\n      bet_mode\n      bet_percent\n      bet_percent_type\n      can_cancel\n      result_balance_change_reason\n      result_count\n      __typename\n    }\n    __typename\n  }\n  Language {\n    lottery_game_v2 {\n      k\n      v\n      __typename\n    }\n    order_status {\n      k\n      v\n      __typename\n    }\n    bet_mode {\n      k\n      v\n      __typename\n    }\n    __typename\n  }\n}\n",
-    }),
-    method: "POST",
-    mode: "cors",
-  });
-  const result = await response.json();
-  return result;
+      referrer: `${config.api}/report/lotteryOrder`,
+      referrerPolicy: "strict-origin-when-cross-origin",
+      body: JSON.stringify({
+        operationName: "getLotteryOrderDetail",
+        variables: {
+          id: id,
+        },
+        query:
+          "query getLotteryOrderDetail($id: String!) {\n  User {\n    id\n    lottery_order_detail(id: $id) {\n      user_account\n      order_id\n      create_time\n      game_id_v2\n      game_type_name\n      game_cycle_value\n      bet_count\n      bet_multiple\n      bet_balance\n      result_balance\n      order_status\n      order_result\n      bet_info\n      bet_mode\n      bet_percent\n      bet_percent_type\n      can_cancel\n      result_balance_change_reason\n      result_count\n      __typename\n    }\n    __typename\n  }\n  Language {\n    lottery_game_v2 {\n      k\n      v\n      __typename\n    }\n    order_status {\n      k\n      v\n      __typename\n    }\n    bet_mode {\n      k\n      v\n      __typename\n    }\n    __typename\n  }\n}\n",
+      }),
+      method: "POST",
+      mode: "cors",
+    });
+    const data = await response.json();
+    const orderDetail = _.get(data, "data.User.lottery_order_detail");
+    return orderDetail;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // 定义规则
-let rule = new schedule.RecurrenceRule();
-let second = [];
+// let rule = new schedule.RecurrenceRule();
 
-// 通过配置config文件中的interval值,来设置监听的时间间隔
-for (let time = 0; time < 60; time = time + config.interval) {
-  second.push(time);
-}
-rule.second = second;
+// let second = [];
+
+// // 通过配置config文件中的interval值,来设置监听的时间间隔
+// for (let time = 0; time < 60; time = time + config.interval) {
+//   second.push(time);
+// }
+// rule.second = second;
 
 // 启动任务
-let job = schedule.scheduleJob(rule, () => {
+// let job = schedule.scheduleJob(rule, () => {
+//   console.log(
+//     `正在第${index}次监听下级用户【${
+//       config.username
+//     }】是否正在投注【时间：${st.format(new Date(), "YYYY-MM-DD HH:mm:ss")}】`
+//   );
+//   start();
+//   index++;
+// });
+
+
+schedule.scheduleJob("45-50 * * * * *", () => {
   console.log(
     `正在第${index}次监听下级用户【${
       config.username
@@ -152,10 +178,71 @@ async function start() {
   result_balance_display: "19.660" //有余额说明是中奖
   user_account: "dashabi999"
    */
+
+  /**
+   * orderDetail:
+   * {
+   "user_account":"dashabi999",
+   "order_id":"LBFSPKQPJLRJ",订单id
+   "create_time":"2021-09-05 19:22:21",
+   "game_id_v2":190,
+   "game_type_name":"定位胆",
+   "game_cycle_value":"202109051163",// 期号
+   "bet_count":5,// 注数
+   "bet_multiple":1,
+   "bet_balance":"10",// 
+   "result_balance":"0",
+   "order_status":"OrderWaitOpen",// 订单状态
+   "order_result":null,
+   "bet_info":"01234, , , , ", 投注信息
+   "bet_mode":"TwoYuan", 投注模式
+   "bet_percent":0,// 投注返点
+   "bet_percent_type":"AdjustPercentType",
+   "can_cancel":true, 能否取消
+   "result_balance_change_reason":"",
+   "result_count":"",
+  
+   */
+  /**
+   * order
+   * 
+   * {
+   "id":"MLPMJUKQPFJK",
+   "user_account":"dashabi999",
+   "game_cycle_value":"202109051209",
+   "bet_info":", , , 56789, ",
+   "game_value":"奇趣腾讯分分彩",
+   "game_type_name":"定位胆",
+   "bet_balance_display":"10",
+   "result_balance_display":"0",
+   "create_time":"2021-09-05 20:08:48",
+   "bet_multiple":1,
+   "order_status":"OrderWaitOpen",
+   "can_cancel":false,
+   "can_one_more":false,
+   "result_balance_change_reason":null,
+   "__typename":"PersonalLotteryGameRecord"
+}
+   */
   for (const order of orderList) {
     if (order.order_status === "OrderWaitOpen") {
-      let { bet_info, game_type_name, id } = order;
+      // let { id, game_value } = order;
+      // const orderDetail = await getOrderDetail(id);
+      // console.log(JSON.stringify(order));
+      let {
+        id,
+        bet_info,
+        game_value,
+        // bet_count,
+        game_type_name, // 游戏玩法
+        create_time,
+        game_cycle_value,
+        // bet_mode,
+        bet_multiple,
+        // bet_balance,
+      } = order;
       if (!hasOrder[id] && game_type_name === "定位胆") {
+        hasOrder[id] = true;
         const array = bet_info.replace(/\s+/g, "").split(","); //去掉下注信息中的空格,转换成数组
         console.log(chalk.blue("============正在投注================"));
         const { hasError, data } = await AddLotteryOrders({
@@ -166,9 +253,13 @@ async function start() {
         });
         if (!hasError) {
           // 没有异常，标注该订单已经投注
-          hasOrder[id] = true;
+          // hasOrder[id] = true;
           console.log(chalk.green("============投注成功================"));
         }
+        // if (hasError && expired) {
+        //   // 有错误，期号过期错误，也指定已经投注
+        //   // hasOrder[id] = true;
+        // }
         console.log("投注相关信息", data, hasError, hasOrder);
       }
     }
