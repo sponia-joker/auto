@@ -114,14 +114,21 @@ async function getOrderDetail(id) {
 
 // 定义规则
 let rule = new schedule.RecurrenceRule();
-rule.second = [
-  0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
-  42, 44, 46, 48, 50, 52, 54, 56, 58,
-]; // 每隔 2 秒执行一次
+let second = [];
+
+// 通过配置config文件中的interval值,来设置监听的时间间隔
+for (let time = 0; time < 60; time = time + config.interval) {
+  second.push(time);
+}
+rule.second = second;
 
 // 启动任务
 let job = schedule.scheduleJob(rule, () => {
-  console.log(`正在第${index}次监听下级用户【${config.username}】是否正在投注`);
+  console.log(
+    `正在第${index}次监听下级用户【${
+      config.username
+    }】是否正在投注【时间：${st.format(new Date(), "YYYY-MM-DD HH:mm:ss")}】`
+  );
   start();
   index++;
 });
