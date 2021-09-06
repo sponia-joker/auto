@@ -28,19 +28,9 @@ async function getOrderList() {
     new Date(new Date().setDate(new Date().getDate() + 1)),
     "YYYY-MM-DD 03:00:00"
   );
+  config.headers.authorization = config.token;
   const response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
-    headers: {
-      accept: "application/json, text/plain, */*",
-      "accept-language": "en-US,en;q=0.9",
-      authorization: config.token,
-      "content-type": "application/json",
-      "sec-ch-ua":
-        '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "same-origin",
-    },
+    headers: config.headers,
     referrer: `${config.api}/report/lotteryOrder`,
     referrerPolicy: "strict-origin-when-cross-origin",
     body: JSON.stringify({
@@ -88,19 +78,9 @@ async function getOrderList() {
  * id 投注记录对应的id
  */
 async function getOrderDetail(id) {
+  config.headers.authorization = config.token;
   const response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
-    headers: {
-      accept: "application/json, text/plain, */*",
-      "accept-language": "en-US,en;q=0.9",
-      authorization: config.token,
-      "content-type": "application/json",
-      "sec-ch-ua":
-        '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "same-origin",
-    },
+    headers: config.headers,
     referrer: `${config.api}/report/lotteryOrder`,
     referrerPolicy: "strict-origin-when-cross-origin",
     body: JSON.stringify({

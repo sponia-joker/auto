@@ -30,19 +30,9 @@ async function getOrderList() {
   );
   let response = {};
   try {
+    config.headers.authorization = config.token;
     response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
-      headers: {
-        accept: "application/json, text/plain, */*",
-        "accept-language": "en-US,en;q=0.9",
-        authorization: config.token,
-        "content-type": "application/json",
-        "sec-ch-ua":
-          '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin",
-      },
+      headers: config.headers,
       referrer: `${config.api}/report/lotteryOrder`,
       referrerPolicy: "strict-origin-when-cross-origin",
       body: JSON.stringify({
@@ -92,19 +82,9 @@ async function getOrderList() {
  */
 async function getOrderDetail(id) {
   try {
+    config.headers.authorization = config.token;
     const response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
-      headers: {
-        accept: "application/json, text/plain, */*",
-        "accept-language": "en-US,en;q=0.9",
-        authorization: config.token,
-        "content-type": "application/json",
-        "sec-ch-ua":
-          '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin",
-      },
+      headers: config.headers,
       referrer: `${config.api}/report/lotteryOrder`,
       referrerPolicy: "strict-origin-when-cross-origin",
       body: JSON.stringify({
@@ -148,7 +128,7 @@ async function getOrderDetail(id) {
 //   index++;
 // });
 
-schedule.scheduleJob("44-48 * * * * *", () => {
+schedule.scheduleJob("46-50 * * * * *", () => {
   console.log(
     `正在第${index}次监听下级用户【${
       config.username
