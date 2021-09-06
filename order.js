@@ -61,7 +61,7 @@ export async function AddLotteryOrders({ params = {} }) {
                 game_type_id: params.order.game_type_id,
                 game_cycle_id: game_cycle_id,
                 bet_info: params.bet_info,
-                bet_mode: "TwoYuan",
+                bet_mode: params.bet_mode,
                 bet_multiple: 1,
                 bet_percent_type: "AdjustPercentType",
                 bet_percent: 0,

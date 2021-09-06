@@ -5,7 +5,7 @@ import chalk from "chalk";
 import config from "./config.js";
 import st from "silly-datetime";
 import { AddLotteryOrders } from "./order.js";
-import { convertNumberInDingWeiDan } from "./util.js";
+import { convertNumberInDingWeiDan,convertForTwoSelectDuplex } from "./util.js";
 
 /**
  * 全局变量，保存已经投注的订单id
@@ -205,26 +205,33 @@ async function start() {
    */
   for (let order of orderList) {
     if (order.order_status === "OrderWaitOpen") {
-      // let { id, game_value } = order;
-      // const orderDetail = await getOrderDetail(id);
+      let { id, game_value } = order;
+      const orderDetail = await getOrderDetail(id);
       // console.log(JSON.stringify(order));
       let {
-        id,
         bet_info,
-        game_value,
         // bet_count,
         game_type_name, // 游戏玩法
         create_time,
         game_cycle_value,
-        // bet_mode,
+        bet_mode,
         bet_multiple,
         // bet_balance,
-      } = order;
+      } = orderDetail;
       if (!hasOrder[id]) {
         hasOrder[id] = true; // 防止订单被重复执行
         let new_bet_info = {};
         const bet_info_no_space = bet_info.replace(/\s+/g, "");
         const bet_info_array = bet_info_no_space.split(","); //去掉下注信息中的空格,转换成数组
+        /**
+         *  前三直选复式 35
+            后三_直选复式 21
+            任二组选_组选复式 81
+            后三_组六复式:28
+            前三_组六复式 42
+            中三_组六复式 113
+         *
+         */
         if (game_type_name === "定位胆") {
           new_bet_info = convertNumberInDingWeiDan(bet_info_array);
           order.game_type_id = 65;
@@ -234,7 +241,26 @@ async function start() {
         } else if (game_type_name === "不定位_后四二码") {
           new_bet_info = `[[${bet_info_no_space}]]`;
           order.game_type_id = 71;
-        } else {
+        } else if (game_type_name === "前三_直选复式") {
+          new_bet_info = convertNumberInDingWeiDan(bet_info_array);
+          order.game_type_id = 35;
+        } else if (game_type_name === "后三_直选复式") {
+          new_bet_info = convertNumberInDingWeiDan(bet_info_array);
+          order.game_type_id = 21;
+        } else if (game_type_name === "前三_组六复式") {
+          new_bet_info = `[[${bet_info_no_space}]]`;
+          order.game_type_id = 42;
+        } else if (game_type_name === "中三_组六复式") {
+          new_bet_info = `[[${bet_info_no_space}]]`;
+          order.game_type_id = 113;
+        } else if (game_type_name === "后三_组六复式") {
+          new_bet_info = `[[${bet_info_no_space}]]`;
+          order.game_type_id = 28;
+        }else if(game_type_name==="任二组选_组选复式"){
+          new_bet_info = convertForTwoSelectDuplex(bet_info.split(" "))
+          order.game_type_id = 81;
+        }
+         else {
           // 其他玩法直接返回，不做处理
           return;
         }
@@ -243,6 +269,7 @@ async function start() {
           params: {
             bet_info: new_bet_info,
             order,
+            bet_mode,
           },
         });
         if (!hasError) {
