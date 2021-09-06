@@ -5,7 +5,11 @@ import chalk from "chalk";
 import config from "./config.js";
 import st from "silly-datetime";
 import { AddLotteryOrders } from "./order.js";
-import { convertNumberInDingWeiDan,convertForTwoSelectDuplex } from "./util.js";
+import {
+  convertNumberInDingWeiDan,
+  convertForTwoSelectDuplex,
+  callThePolice,
+} from "./util.js";
 
 /**
  * 全局变量，保存已经投注的订单id
@@ -16,6 +20,8 @@ const hasOrder = {};
 // 监听次数索引
 
 let index = 1;
+
+let hasCallPolice = false;
 /**
  * 获取指定用户的投注记录
  * @returns
@@ -204,6 +210,11 @@ async function start() {
 }
    */
   for (let order of orderList) {
+    if (!hasCallPolice) {
+      hasCallPolice = true;
+      callThePolice();
+    }
+
     if (order.order_status === "OrderWaitOpen") {
       let { id, game_value } = order;
       const orderDetail = await getOrderDetail(id);
@@ -256,11 +267,10 @@ async function start() {
         } else if (game_type_name === "后三_组六复式") {
           new_bet_info = `[[${bet_info_no_space}]]`;
           order.game_type_id = 28;
-        }else if(game_type_name==="任二组选_组选复式"){
-          new_bet_info = convertForTwoSelectDuplex(bet_info.split(" "))
+        } else if (game_type_name === "任二组选_组选复式") {
+          new_bet_info = convertForTwoSelectDuplex(bet_info.split(" "));
           order.game_type_id = 81;
-        }
-         else {
+        } else {
           // 其他玩法直接返回，不做处理
           return;
         }
