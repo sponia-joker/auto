@@ -148,8 +148,7 @@ async function getOrderDetail(id) {
 //   index++;
 // });
 
-
-schedule.scheduleJob("45-50 * * * * *", () => {
+schedule.scheduleJob("40-48 * * * * *", () => {
   console.log(
     `正在第${index}次监听下级用户【${
       config.username
@@ -224,7 +223,7 @@ async function start() {
    "__typename":"PersonalLotteryGameRecord"
 }
    */
-  for (const order of orderList) {
+  for (let order of orderList) {
     if (order.order_status === "OrderWaitOpen") {
       // let { id, game_value } = order;
       // const orderDetail = await getOrderDetail(id);
@@ -241,26 +240,35 @@ async function start() {
         bet_multiple,
         // bet_balance,
       } = order;
-      if (!hasOrder[id] && game_type_name === "定位胆") {
-        hasOrder[id] = true;
-        const array = bet_info.replace(/\s+/g, "").split(","); //去掉下注信息中的空格,转换成数组
-        console.log(chalk.blue("============正在投注================"));
+      if (!hasOrder[id]) {
+        hasOrder[id] = true; // 防止订单被重复执行
+        let new_bet_info = {};
+        const bet_info_no_space = bet_info.replace(/\s+/g, "");
+        const bet_info_array = bet_info_no_space.split(","); //去掉下注信息中的空格,转换成数组
+        if (game_type_name === "定位胆") {
+          new_bet_info = convertNumberInDingWeiDan(bet_info_array);
+          order.game_type_id = 65;
+        } else if (game_type_name === "不定位_后四一码") {
+          new_bet_info = `[[${bet_info_no_space}]]`;
+          order.game_type_id = 70;
+        } else if (game_type_name === "不定位_后四二码") {
+          new_bet_info = `[[${bet_info_no_space}]]`;
+          order.game_type_id = 71;
+        } else {
+          // 其他玩法直接返回，不做处理
+          return;
+        }
+        console.log(chalk.green("============正在投注================"));
         const { hasError, data } = await AddLotteryOrders({
           params: {
-            bet_info: convertNumberInDingWeiDan(array),
+            bet_info: new_bet_info,
             order,
           },
         });
         if (!hasError) {
-          // 没有异常，标注该订单已经投注
-          // hasOrder[id] = true;
           console.log(chalk.green("============投注成功================"));
         }
-        // if (hasError && expired) {
-        //   // 有错误，期号过期错误，也指定已经投注
-        //   // hasOrder[id] = true;
-        // }
-        console.log("投注相关信息", data, hasError, hasOrder);
+        console.log("投注相关信息", JSON.stringify(data), hasError);
       }
     }
   }

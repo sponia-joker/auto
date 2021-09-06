@@ -79,7 +79,8 @@ export async function AddLotteryOrders({ params = {} }) {
             input: [
               {
                 game_id: 190,// 奇趣分分彩
-                game_type_id: 65,// 定位胆  113：中三组六复式
+                // 定位胆 65 中三组六复式 113   不定位后四2码  71  不定位后四1码 70
+                game_type_id: params.order.game_type_id,
                 game_cycle_id: game_cycle_id,
                 bet_info: params.bet_info,
                 bet_mode: "TwoYuan",
