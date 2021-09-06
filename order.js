@@ -22,7 +22,7 @@ async function GetLotteryCycle() {
     headers: {
       accept: "application/json, text/plain, */*",
       "accept-language": "zh-CN,zh;q=0.9",
-      authorization: config.token,
+      authorization: config.touzhu_token,
       "content-type": "application/json",
       "sec-ch-ua":
         '"Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"',
@@ -61,7 +61,7 @@ export async function AddLotteryOrders({ params = {} }) {
         headers: {
           accept: "application/json, text/plain, */*",
           "accept-language": "zh-CN,zh;q=0.9",
-          authorization: config.token,
+          authorization: config.touzhu_token,
           "content-type": "application/json",
           "sec-ch-ua":
             '"Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"',

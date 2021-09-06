@@ -148,7 +148,7 @@ async function getOrderDetail(id) {
 //   index++;
 // });
 
-schedule.scheduleJob("40-48 * * * * *", () => {
+schedule.scheduleJob("44-48 * * * * *", () => {
   console.log(
     `正在第${index}次监听下级用户【${
       config.username
