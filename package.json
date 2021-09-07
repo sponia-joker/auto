@@ -4,7 +4,8 @@
     "lodash": "^4.17.21",
     "node-fetch": "^3.0.0",
     "node-schedule": "^2.0.0",
-    "silly-datetime": "^0.1.2"
+    "silly-datetime": "^0.1.2",
+    "uuid": "^8.3.2"
   },
   "type": "module",
   "name": "wantai",
