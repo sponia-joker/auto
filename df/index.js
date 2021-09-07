@@ -389,7 +389,6 @@ async function start() {
    */
   for (let order of orderList) {
     const { ID, State } = order;
-    console.log(State);
     if (State === "BET" && !hasOrder[ID]) {
       const orderDetail = await getOrderDetail(ID);
       await addRecord(orderDetail);

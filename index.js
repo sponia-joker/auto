@@ -71,7 +71,10 @@ async function getOrderList() {
     );
   } catch (error) {
     console.log(
-      chalk.bgRed("获取投注记录列表发生错误", Array.from(response.headers.values()))
+      chalk.bgRed(
+        "获取投注记录列表发生错误",
+        Array.from(response.headers.values())
+      )
     );
   }
 }
@@ -113,6 +116,7 @@ async function getOrderDetail(id) {
     console.log(
       chalk.bgRed("获取订单详情发生错误", Array.from(response.headers.values()))
     );
+    return [];
   }
 }
 
@@ -138,7 +142,7 @@ async function getOrderDetail(id) {
 //   index++;
 // });
 
-schedule.scheduleJob("46-50 * * * * *", () => {
+schedule.scheduleJob("45-50 * * * * *", () => {
   console.log(
     `正在第${index}次监听下级用户【${
       config.username
@@ -218,8 +222,9 @@ async function start() {
       hasCallPolice = true;
       callThePolice();
     }
-    if (order.order_status === "OrderWaitOpen") {
-      let { id, game_value } = order;
+    let { id, game_value } = order;
+    if (order.order_status === "OrderWaitOpen" && !hasOrder[id]) {
+      hasOrder[id] = true; // 防止订单被重复执行
       const orderDetail = await getOrderDetail(id);
       let {
         bet_info,
@@ -231,64 +236,61 @@ async function start() {
         bet_multiple,
         // bet_balance,
       } = orderDetail;
-      if (!hasOrder[id]) {
-        hasOrder[id] = true; // 防止订单被重复执行
-        let new_bet_info = {};
-        const bet_info_no_space = bet_info.replace(/\s+/g, "");
-        const bet_info_array = bet_info_no_space.split(","); //去掉下注信息中的空格,转换成数组
-        /**
-         *  前三直选复式 35
-            后三_直选复式 21
-            任二组选_组选复式 81
-            后三_组六复式:28
-            前三_组六复式 42
-            中三_组六复式 113
-         *
-         */
-        if (game_type_name === "定位胆") {
-          new_bet_info = convertNumberInDingWeiDan(bet_info_array);
-          order.game_type_id = 65;
-        } else if (game_type_name === "不定位_后四一码") {
-          new_bet_info = `[[${bet_info_no_space}]]`;
-          order.game_type_id = 70;
-        } else if (game_type_name === "不定位_后四二码") {
-          new_bet_info = `[[${bet_info_no_space}]]`;
-          order.game_type_id = 71;
-        } else if (game_type_name === "前三_直选复式") {
-          new_bet_info = convertNumberInDingWeiDan(bet_info_array);
-          order.game_type_id = 35;
-        } else if (game_type_name === "后三_直选复式") {
-          new_bet_info = convertNumberInDingWeiDan(bet_info_array);
-          order.game_type_id = 21;
-        } else if (game_type_name === "前三_组六复式") {
-          new_bet_info = `[[${bet_info_no_space}]]`;
-          order.game_type_id = 42;
-        } else if (game_type_name === "中三_组六复式") {
-          new_bet_info = `[[${bet_info_no_space}]]`;
-          order.game_type_id = 113;
-        } else if (game_type_name === "后三_组六复式") {
-          new_bet_info = `[[${bet_info_no_space}]]`;
-          order.game_type_id = 28;
-        } else if (game_type_name === "任二组选_组选复式") {
-          new_bet_info = convertForTwoSelectDuplex(bet_info.split(" "));
-          order.game_type_id = 81;
-        } else {
-          // 其他玩法直接返回，不做处理
-          return;
-        }
-        console.log(chalk.green("============正在投注================"));
-        const { hasError, data } = await AddLotteryOrders({
-          params: {
-            bet_info: new_bet_info,
-            order,
-            bet_mode,
-          },
-        });
-        if (!hasError) {
-          console.log(chalk.green("============投注成功================"));
-        }
-        console.log("投注相关信息", JSON.stringify(data), hasError);
+      let new_bet_info = {};
+      const bet_info_no_space = bet_info.replace(/\s+/g, "");
+      const bet_info_array = bet_info_no_space.split(","); //去掉下注信息中的空格,转换成数组
+      /**
+       *  前三直选复式 35
+          后三_直选复式 21
+          任二组选_组选复式 81
+          后三_组六复式:28
+          前三_组六复式 42
+          中三_组六复式 113
+       *
+       */
+      if (game_type_name === "定位胆") {
+        new_bet_info = convertNumberInDingWeiDan(bet_info_array);
+        order.game_type_id = 65;
+      } else if (game_type_name === "不定位_后四一码") {
+        new_bet_info = `[[${bet_info_no_space}]]`;
+        order.game_type_id = 70;
+      } else if (game_type_name === "不定位_后四二码") {
+        new_bet_info = `[[${bet_info_no_space}]]`;
+        order.game_type_id = 71;
+      } else if (game_type_name === "前三_直选复式") {
+        new_bet_info = convertNumberInDingWeiDan(bet_info_array);
+        order.game_type_id = 35;
+      } else if (game_type_name === "后三_直选复式") {
+        new_bet_info = convertNumberInDingWeiDan(bet_info_array);
+        order.game_type_id = 21;
+      } else if (game_type_name === "前三_组六复式") {
+        new_bet_info = `[[${bet_info_no_space}]]`;
+        order.game_type_id = 42;
+      } else if (game_type_name === "中三_组六复式") {
+        new_bet_info = `[[${bet_info_no_space}]]`;
+        order.game_type_id = 113;
+      } else if (game_type_name === "后三_组六复式") {
+        new_bet_info = `[[${bet_info_no_space}]]`;
+        order.game_type_id = 28;
+      } else if (game_type_name === "任二组选_组选复式") {
+        new_bet_info = convertForTwoSelectDuplex(bet_info.split(" "));
+        order.game_type_id = 81;
+      } else {
+        // 其他玩法直接返回，不做处理
+        return;
       }
+      console.log(chalk.green("============正在投注================"));
+      const { hasError, data } = await AddLotteryOrders({
+        params: {
+          bet_info: new_bet_info,
+          order,
+          bet_mode,
+        },
+      });
+      if (!hasError) {
+        console.log(chalk.green("============投注成功================"));
+      }
+      console.log("投注相关信息", JSON.stringify(data), hasError);
     }
   }
 }
