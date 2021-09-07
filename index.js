@@ -70,7 +70,9 @@ async function getOrderList() {
       []
     );
   } catch (error) {
-    console.log(error);
+    console.log(
+      chalk.bgRed("获取投注记录列表发生错误", Array.from(response.headers.values()))
+    );
   }
 }
 /**
@@ -108,7 +110,9 @@ async function getOrderDetail(id) {
     const orderDetail = _.get(data, "data.User.lottery_order_detail");
     return orderDetail;
   } catch (error) {
-    console.log(error);
+    console.log(
+      chalk.bgRed("获取订单详情发生错误", Array.from(response.headers.values()))
+    );
   }
 }
 
@@ -218,7 +222,6 @@ async function start() {
     if (order.order_status === "OrderWaitOpen") {
       let { id, game_value } = order;
       const orderDetail = await getOrderDetail(id);
-      // console.log(JSON.stringify(order));
       let {
         bet_info,
         // bet_count,
