@@ -218,7 +218,6 @@ async function start() {
       hasCallPolice = true;
       callThePolice();
     }
-
     if (order.order_status === "OrderWaitOpen") {
       let { id, game_value } = order;
       const orderDetail = await getOrderDetail(id);

@@ -376,7 +376,6 @@ function run() {
       }】是否正在投注【时间：${st.format(new Date(), "YYYY-MM-DD HH:mm:ss")}】`
     );
     start();
-    // timeRefresh()
     index++;
   });
 }
@@ -400,7 +399,7 @@ async function start() {
 
 function timeRefresh() {
   var rule = new schedule.RecurrenceRule();
-  rule.minute = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+  rule.minute = [0, 10, 20, 30, 40, 50];
   var j = schedule.scheduleJob(rule, function () {
     console.log(
       "======准备刷新Token=======",
@@ -411,3 +410,4 @@ function timeRefresh() {
 }
 
 run();
+timeRefresh();

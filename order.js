@@ -40,7 +40,7 @@ async function GetLotteryCycle() {
 
 /**
  * 进行投注
- * @param {*} param0
+ * @param 
  * @returns
  */
 export async function AddLotteryOrders({ params = {} }) {
@@ -115,21 +115,3 @@ export async function AddLotteryOrders({ params = {} }) {
     };
   }
 }
-/**
- * {"data":{"AddLotteryOrders":{"message":"\u6295\u6ce8\u6210\u529f!","order_ids":["QDHUBLLCIPXO"],"__typename":"AddLotteryOrdersResult"}}}
- */
-
-/**
- * {
-  errors: [
-    {
-      message: '注单错误，请重试',
-      category: 'user',
-      error_code: 10062,
-      locations: [Array],
-      path: [Array]
-    }
-  ],
-  data: { AddLotteryOrders: null }
-}
- */
