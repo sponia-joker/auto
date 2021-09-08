@@ -2,6 +2,7 @@ import _ from "lodash";
 import chalk from "chalk";
 import fetch from "node-fetch";
 import config from "./config.js";
+import logger from "./logger.js";
 
 /**
  * 获取当前期数的信息
@@ -32,19 +33,17 @@ async function GetLotteryCycle() {
     const data = await response.json();
     return data.data.LotteryGame;
   } catch (error) {
-    console.log(
-      chalk.bgRed("获取当前期号出现错误", Array.from(response.headers.values()))
-    );
+    logger.error("获取当前期号出现错误", Array.from(response.headers.values()));
   }
 }
 
 /**
  * 进行投注
- * @param 
+ * @param
  * @returns
  */
 export async function AddLotteryOrders({ params = {} }) {
-  console.log("投注订单的参数", JSON.stringify(params));
+  logger.info("投注订单的参数", JSON.stringify(params));
   const lotteryCycle = await GetLotteryCycle();
   const game_cycle_id = lotteryCycle.lottery_cycle_now.now_cycle_id;
   const now_cycle_value = lotteryCycle.lottery_cycle_now.now_cycle_value; // 期号
@@ -83,9 +82,7 @@ export async function AddLotteryOrders({ params = {} }) {
       });
       data = await response.json();
     } catch (error) {
-      console.log(
-        chalk.bgRed("投注订单发生错误", Array.from(response.headers.values()))
-      );
+      logger.error("投注订单发生错误", Array.from(response.headers.values()));
       return {
         hasError: true,
         data: {
@@ -100,7 +97,7 @@ export async function AddLotteryOrders({ params = {} }) {
         data: errors,
       };
     } else {
-      // console.log(_.get(data, "data.AddLotteryOrders.message"));
+      // logger.info(_.get(data, "data.AddLotteryOrders.message"));
       return {
         hasError: false,
         data,

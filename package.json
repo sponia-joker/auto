@@ -2,6 +2,7 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "lodash": "^4.17.21",
+    "log4js": "^6.3.0",
     "node-fetch": "^3.0.0",
     "node-schedule": "^2.0.0",
     "silly-datetime": "^0.1.2",

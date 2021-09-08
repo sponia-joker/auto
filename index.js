@@ -5,6 +5,7 @@ import chalk from "chalk";
 import config from "./config.js";
 import st from "silly-datetime";
 import { AddLotteryOrders } from "./order.js";
+import logger from "./logger.js";
 import {
   convertNumberInDingWeiDan,
   convertForTwoSelectDuplex,
@@ -70,12 +71,11 @@ async function getOrderList() {
       []
     );
   } catch (error) {
-    console.log(
-      chalk.bgRed(
-        "获取投注记录列表发生错误",
-        Array.from(response.headers.values())
-      )
+    logger.error(
+      "获取投注记录列表发生错误",
+      Array.from(response.headers.values())
     );
+    return [];
   }
 }
 /**
@@ -113,10 +113,7 @@ async function getOrderDetail(id) {
     const orderDetail = _.get(data, "data.User.lottery_order_detail");
     return orderDetail;
   } catch (error) {
-    console.log(
-      chalk.bgRed("获取订单详情发生错误", Array.from(response.headers.values()))
-    );
-    return [];
+    logger.error("获取订单详情发生错误", Array.from(response.headers.values()));
   }
 }
 
@@ -133,7 +130,7 @@ async function getOrderDetail(id) {
 
 // 启动任务
 // let job = schedule.scheduleJob(rule, () => {
-//   console.log(
+//   logger.info(
 //     `正在第${index}次监听下级用户【${
 //       config.username
 //     }】是否正在投注【时间：${st.format(new Date(), "YYYY-MM-DD HH:mm:ss")}】`
@@ -143,11 +140,7 @@ async function getOrderDetail(id) {
 // });
 
 schedule.scheduleJob("45-50 * * * * *", () => {
-  console.log(
-    `正在第${index}次监听下级用户【${
-      config.username
-    }】是否正在投注【时间：${st.format(new Date(), "YYYY-MM-DD HH:mm:ss")}】`
-  );
+  logger.info(`正在第${index}次监听下级用户【${config.username}】是否正在投注`);
   start();
   index++;
 });
@@ -279,7 +272,7 @@ async function start() {
         // 其他玩法直接返回，不做处理
         return;
       }
-      console.log(chalk.green("============正在投注================"));
+      logger.info("============正在投注================");
       const { hasError, data } = await AddLotteryOrders({
         params: {
           bet_info: new_bet_info,
@@ -287,10 +280,12 @@ async function start() {
           bet_mode,
         },
       });
-      if (!hasError) {
-        console.log(chalk.green("============投注成功================"));
+      if (hasError) {
+        logger.error("============投注失败================");
+      } else {
+        logger.info("============投注成功================");
+        logger.info("投注相关信息", JSON.stringify(data), hasError);
       }
-      console.log("投注相关信息", JSON.stringify(data), hasError);
     }
   }
 }
