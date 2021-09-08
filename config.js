@@ -1,7 +1,6 @@
 export const username = "dashabi999";
 
-export const token =
-  "J-TaXXHMwi_lvwbn4h9PV34VfhOApJ6etEsq-xSonp8=.eyJ1IjoyNjUwOTksImEiOjU0NDQwNTgsInQiOiJmNGM0NjFkNGU1MzRlZmZlIiwiayI6MX0=";
+export const token = "OVFsfKcUO_hsZOxo9hGYqdUeCQFxVnqfuwW274x5fgk=.eyJ1IjoyNjUwOTksImEiOjU0NDQ5NzUsInQiOiJlOTY2M2I1NDA2ODljZWFiIiwiayI6MX0="
 
 export const touzhuToken =
   "J-TaXXHMwi_lvwbn4h9PV34VfhOApJ6etEsq-xSonp8=.eyJ1IjoyNjUwOTksImEiOjU0NDQwNTgsInQiOiJmNGM0NjFkNGU1MzRlZmZlIiwiayI6MX0=";

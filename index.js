@@ -278,6 +278,7 @@ async function start() {
           bet_info: new_bet_info,
           order,
           bet_mode,
+          bet_multiple,
         },
       });
       if (hasError) {

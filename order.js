@@ -68,7 +68,7 @@ export async function AddLotteryOrders({ params = {} }) {
                 game_cycle_id: game_cycle_id,
                 bet_info: params.bet_info,
                 bet_mode: params.bet_mode,
-                bet_multiple: 1,
+                bet_multiple: params.bet_multiple,
                 bet_percent_type: "AdjustPercentType",
                 bet_percent: 0,
               },

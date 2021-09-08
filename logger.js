@@ -6,7 +6,7 @@ log4js.configure({
     app: {
       type: "dateFile",
       filename: "wantai.log",
-      pattern: ".yyyy-MM-dd-hh",
+      pattern: ".yyyy-MM-dd",
       compress: true,
     },
   },
@@ -18,8 +18,6 @@ log4js.configure({
 const logger = log4js.getLogger("Listening");
 
 export default logger;
-
-
 
 // logger.trace("Entering cheese testing");
 // logger.debug("Got cheese.");
