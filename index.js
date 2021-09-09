@@ -6,6 +6,7 @@ import config from "./config.js";
 import st from "silly-datetime";
 import { AddLotteryOrders } from "./order.js";
 import logger from "./logger.js";
+import { getCaptchaData, getImageToNumber, loginWanTai } from "./orc.js";
 import {
   convertNumberInDingWeiDan,
   convertForTwoSelectDuplex,
@@ -37,7 +38,6 @@ async function getOrderList() {
   );
   let response = {};
   try {
-    config.headers.authorization = config.token;
     response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
       headers: config.headers,
       referrer: `${config.api}/report/lotteryOrder`,
@@ -97,7 +97,6 @@ async function getOrderList() {
  */
 async function getOrderDetail(id) {
   try {
-    config.headers.authorization = config.token;
     const response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
       headers: config.headers,
       referrer: `${config.api}/report/lotteryOrder`,
@@ -148,11 +147,33 @@ let job = schedule.scheduleJob(rule, () => {
 });
  */
 
-schedule.scheduleJob("45-50 * * * * *", () => {
-  logger.info(`正在第${index}次监听下级用户【${config.username}】是否正在投注`);
-  start();
-  index++;
-});
+async function run() {
+  const token = await login(config.listenUser);
+  const touzhuToken = await login(config.touzhuUser);
+
+  config.headers["authorization"] = token;
+  config.touzhuHeaders["authorization"] = touzhuToken;
+
+  schedule.scheduleJob("45-50 * * * * *", () => {
+    logger.info(
+      `正在第${index}次监听下级用户【${config.username}】是否正在投注`
+    );
+    start();
+    index++;
+  });
+}
+
+async function login({ account, password }) {
+  const { captcha_id, captcha_base64_string } = await getCaptchaData();
+  const captcha_code = await getImageToNumber(captcha_base64_string);
+  const token = await loginWanTai({
+    account,
+    password,
+    captcha_id,
+    captcha_code,
+  });
+  return token;
+}
 
 async function start() {
   const orderList = await getOrderList();
@@ -228,3 +249,5 @@ async function start() {
     }
   }
 }
+
+run();

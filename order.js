@@ -19,11 +19,10 @@ import logger from "./logger.js";
     __typename: "LotteryCycleNow"
  */
 async function GetLotteryCycle() {
-  config.headers.authorization = config.touzhuToken;
   let response = {};
   try {
     response = await fetch(`${config.api}/APIV2/GraphQL?l=zh-cn&pf=web`, {
-      headers: config.headers,
+      headers: config.touzhuHeaders,
       referrer: `${config.api}/lottery/190`,
       referrerPolicy: "strict-origin-when-cross-origin",
       body: '{"operationName":"GetLotteryCycle","variables":{"game_id":190,"row_count":20},"query":"query GetLotteryCycle($game_id: Int!, $row_count: Int) {\\n  LotteryGame(game_id: $game_id) {\\n    game_id\\n    game_value\\n    official_website\\n    official_website_remind\\n    lottery_cycle_now {\\n      now_cycle_id\\n      now_cycle_value\\n      now_cycle_count_down\\n      last_cycle_value\\n      last_cycle_game_result\\n      future_cycle_list {\\n        cycle_id\\n        cycle_value\\n        __typename\\n      }\\n      __typename\\n    }\\n    lottery_result_history(row_count: $row_count) {\\n      cycle_value\\n      game_result\\n      open_time\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n"}',
@@ -52,9 +51,8 @@ export async function AddLotteryOrders({ params = {} }) {
   if (now_cycle_value === params.order.game_cycle_value) {
     // 当前期号和监听用户投注期号相同
     try {
-      config.headers.authorization = config.touzhuToken;
       response = await fetch(`${config.api}/APIV2/GraphQL?l=zh-cn&pf=web`, {
-        headers: config.headers,
+        headers: config.touzhuHeaders,
         referrer: `${config.api}/lottery/190`,
         referrerPolicy: "strict-origin-when-cross-origin",
         body: JSON.stringify({
