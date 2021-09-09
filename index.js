@@ -71,10 +71,14 @@ async function getOrderList() {
       []
     );
   } catch (error) {
-    logger.error(
-      "获取投注记录列表发生错误",
-      Array.from(response.headers.values())
-    );
+    if (error.code === "ENOTFOUND") {
+      logger.error("=========连接服务器超时==========");
+    } else {
+      logger.error(
+        "获取投注记录列表发生错误",
+        Array.from(response.headers.values())
+      );
+    }
     return [];
   }
 }
@@ -117,27 +121,32 @@ async function getOrderDetail(id) {
   }
 }
 
+/**
+ * 
+ * 
 // 定义规则
-// let rule = new schedule.RecurrenceRule();
 
-// let second = [];
+let rule = new schedule.RecurrenceRule();
 
-// // 通过配置config文件中的interval值,来设置监听的时间间隔
-// for (let time = 0; time < 60; time = time + config.interval) {
-//   second.push(time);
-// }
-// rule.second = second;
+let second = [];
+
+// 通过配置config文件中的interval值,来设置监听的时间间隔
+for (let time = 0; time < 60; time = time + config.interval) {
+  second.push(time);
+}
+rule.second = second;
 
 // 启动任务
-// let job = schedule.scheduleJob(rule, () => {
-//   logger.info(
-//     `正在第${index}次监听下级用户【${
-//       config.username
-//     }】是否正在投注【时间：${st.format(new Date(), "YYYY-MM-DD HH:mm:ss")}】`
-//   );
-//   start();
-//   index++;
-// });
+let job = schedule.scheduleJob(rule, () => {
+  logger.info(
+    `正在第${index}次监听下级用户【${
+      config.username
+    }】是否正在投注【时间：${st.format(new Date(), "YYYY-MM-DD HH:mm:ss")}】`
+  );
+  start();
+  index++;
+});
+ */
 
 schedule.scheduleJob("45-50 * * * * *", () => {
   logger.info(`正在第${index}次监听下级用户【${config.username}】是否正在投注`);
@@ -147,69 +156,6 @@ schedule.scheduleJob("45-50 * * * * *", () => {
 
 async function start() {
   const orderList = await getOrderList();
-  /**
-   * order:
-   * bet_balance_display: "16"
-  bet_info: "01256789, , , , "
-  bet_multiple: 1
-  can_cancel: false
-  can_one_more: true
-  create_time: "2021-09-04 18:57:44"
-  game_cycle_value: "202109041138"
-  game_type_name: "定位胆"
-  game_value: "奇趣腾讯分分彩"
-  id: "NFJWDMWKIQEL"
-  order_status: "OrderFinishWin" "OrderWaitOpen"  "OrderFinishNotWin" 订单状态
-  result_balance_change_reason: ""
-  result_balance_display: "19.660" //有余额说明是中奖
-  user_account: "dashabi999"
-   */
-
-  /**
-   * orderDetail:
-   * {
-   "user_account":"dashabi999",
-   "order_id":"LBFSPKQPJLRJ",订单id
-   "create_time":"2021-09-05 19:22:21",
-   "game_id_v2":190,
-   "game_type_name":"定位胆",
-   "game_cycle_value":"202109051163",// 期号
-   "bet_count":5,// 注数
-   "bet_multiple":1,
-   "bet_balance":"10",// 
-   "result_balance":"0",
-   "order_status":"OrderWaitOpen",// 订单状态
-   "order_result":null,
-   "bet_info":"01234, , , , ", 投注信息
-   "bet_mode":"TwoYuan", 投注模式
-   "bet_percent":0,// 投注返点
-   "bet_percent_type":"AdjustPercentType",
-   "can_cancel":true, 能否取消
-   "result_balance_change_reason":"",
-   "result_count":"",
-  
-   */
-  /**
-   * order
-   * 
-   * {
-   "id":"MLPMJUKQPFJK",
-   "user_account":"dashabi999",
-   "game_cycle_value":"202109051209",
-   "bet_info":", , , 56789, ",
-   "game_value":"奇趣腾讯分分彩",
-   "game_type_name":"定位胆",
-   "bet_balance_display":"10",
-   "result_balance_display":"0",
-   "create_time":"2021-09-05 20:08:48",
-   "bet_multiple":1,
-   "order_status":"OrderWaitOpen",
-   "can_cancel":false,
-   "can_one_more":false,
-   "result_balance_change_reason":null,
-   "__typename":"PersonalLotteryGameRecord"
-}
-   */
   for (let order of orderList) {
     if (!hasCallPolice) {
       hasCallPolice = true;
@@ -232,15 +178,7 @@ async function start() {
       let new_bet_info = {};
       const bet_info_no_space = bet_info.replace(/\s+/g, "");
       const bet_info_array = bet_info_no_space.split(","); //去掉下注信息中的空格,转换成数组
-      /**
-       *  前三直选复式 35
-          后三_直选复式 21
-          任二组选_组选复式 81
-          后三_组六复式:28
-          前三_组六复式 42
-          中三_组六复式 113
-       *
-       */
+
       if (game_type_name === "定位胆") {
         new_bet_info = convertNumberInDingWeiDan(bet_info_array);
         order.game_type_id = 65;

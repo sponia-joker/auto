@@ -7,7 +7,6 @@ log4js.configure({
       type: "dateFile",
       filename: "wantai.log",
       pattern: ".yyyy-MM-dd",
-      compress: true,
     },
   },
   categories: {
