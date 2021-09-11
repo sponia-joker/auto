@@ -1,7 +1,6 @@
 import _ from "lodash";
 import fetch from "node-fetch";
 import schedule from "node-schedule";
-import chalk from "chalk";
 import config from "./config.js";
 import st from "silly-datetime";
 import { AddLotteryOrders } from "./order.js";
@@ -37,6 +36,7 @@ async function getOrderList() {
     "YYYY-MM-DD 03:00:00"
   );
   let response = {};
+  let data = [];
   try {
     response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
       headers: config.headers,
@@ -64,12 +64,7 @@ async function getOrderList() {
       method: "POST",
       mode: "cors",
     });
-    const data = await response.json();
-    return _.get(
-      data,
-      "data.User.personal_lottery_game_record_page.record",
-      []
-    );
+    data = await response.json();
   } catch (error) {
     if (error.code === "ENOTFOUND") {
       logger.error("=========连接服务器超时==========");
@@ -79,8 +74,9 @@ async function getOrderList() {
         Array.from(response.headers.values())
       );
     }
-    return [];
   }
+
+  return _.get(data, "data.User.personal_lottery_game_record_page.record", []);
 }
 /**
  *
@@ -96,8 +92,10 @@ async function getOrderList() {
  * id 投注记录对应的id
  */
 async function getOrderDetail(id) {
+  let response = {};
+  let orderDetail = {};
   try {
-    const response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
+    response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
       headers: config.headers,
       referrer: `${config.api}/report/lotteryOrder`,
       referrerPolicy: "strict-origin-when-cross-origin",
@@ -113,11 +111,14 @@ async function getOrderDetail(id) {
       mode: "cors",
     });
     const data = await response.json();
-    const orderDetail = _.get(data, "data.User.lottery_order_detail");
-    return orderDetail;
+    orderDetail = _.get(data, "data.User.lottery_order_detail");
   } catch (error) {
-    logger.error("获取订单详情发生错误", Array.from(response.headers.values()));
+    logger.error(
+      "获取投注记录详情发生错误",
+      Array.from(response.headers.values())
+    );
   }
+  return orderDetail;
 }
 
 /**
@@ -182,7 +183,10 @@ async function start() {
       hasCallPolice = true;
       callThePolice();
     }
-    let { id, game_value } = order;
+    let {
+      id,
+      // game_value
+    } = order;
     if (order.order_status === "OrderWaitOpen" && !hasOrder[id]) {
       hasOrder[id] = true; // 防止订单被重复执行
       const orderDetail = await getOrderDetail(id);
@@ -190,8 +194,8 @@ async function start() {
         bet_info,
         // bet_count,
         game_type_name, // 游戏玩法
-        create_time,
-        game_cycle_value,
+        // create_time,
+        // game_cycle_value,
         bet_mode,
         bet_multiple,
         // bet_balance,

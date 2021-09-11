@@ -1,5 +1,4 @@
 import _ from "lodash";
-import chalk from "chalk";
 import fetch from "node-fetch";
 import config from "./config.js";
 import logger from "./logger.js";
@@ -20,6 +19,7 @@ import logger from "./logger.js";
  */
 async function GetLotteryCycle() {
   let response = {};
+  let data = {};
   try {
     response = await fetch(`${config.api}/APIV2/GraphQL?l=zh-cn&pf=web`, {
       headers: config.touzhuHeaders,
@@ -29,11 +29,11 @@ async function GetLotteryCycle() {
       method: "POST",
       mode: "cors",
     });
-    const data = await response.json();
-    return data.data.LotteryGame;
+    data = await response.json();
   } catch (error) {
-    logger.error("获取当前期号出现错误", Array.from(response.headers.values()));
+    logger.error("获取当前期号信息出现错误", Array.from(response.headers.values()));
   }
+  return _.get(data, "data.LotteryGame", {});
 }
 
 /**

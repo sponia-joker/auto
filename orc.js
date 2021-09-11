@@ -13,7 +13,6 @@ export async function getCaptchaData() {
   let captchaData = {};
   const headers = { ...config.headers };
   delete headers["authorization"];
-  console.log(headers)
   try {
     response = await fetch(`${config.api}/APIV2/GraphQL?l=en-us&pf=web`, {
       headers,
