@@ -46,11 +46,11 @@ async function getOrderList() {
         operationName: "getPersonalLotteryGameRecord",
         variables: {
           input: {
-            order_status_type: "OrderWaitChangeBalance",
+            order_status_type: "OrderWaitOpen",//OrderFinishWin OrderFinishNotWin
             start_time,
             end_time,
             page: 1,
-            page_row: 1,
+            page_row: 2,
             identity_range: "Team",
             user_account: config.username, // 到时候自定义指定下级用户名
             game_id: null,
@@ -248,8 +248,8 @@ async function start() {
         logger.error("============投注失败================");
       } else {
         logger.info("============投注成功================");
-        logger.info("投注相关信息", JSON.stringify(data), hasError);
       }
+      logger.info("投注相关信息", JSON.stringify(data), hasError);
     }
   }
 }

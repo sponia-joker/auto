@@ -100,5 +100,7 @@ export async function loginWanTai({
   } catch (error) {
     logger.error("登录平台出现错误", error);
   }
-  return _.get(data, "data.info.token");
+  const token = _.get(data, "data.info.token");
+  logger.info(`${account}用户token:${token}`)
+  return token;
 }

@@ -59,7 +59,7 @@ export function convertForTwoSelectDuplex(array) {
 
 export function callThePolice() {
   fetch("https://fwalert.com/93a4e087-86b1-429c-8a4d-242e04f0f779").then(
-    (value) => {
+    () => {
       console.log(chalk.red("===============报警成功==============="));
     }
   );

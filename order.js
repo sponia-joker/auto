@@ -95,7 +95,6 @@ export async function AddLotteryOrders({ params = {} }) {
         data: errors,
       };
     } else {
-      // logger.info(_.get(data, "data.AddLotteryOrders.message"));
       return {
         hasError: false,
         data,
